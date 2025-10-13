@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Empleados</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Gestión de Empleados</h1>
+  </header>
+
+  <main>
+    <section id="listaEmpleados">
+      <div class="toolbar">
+        <button id="btnInsertar">➕ Insertar Empleado</button>
+      </div>
+
+      <table id="tablaEmpleados">
+        <thead>
+          <tr>
+            <th>Documento ID</th>
+            <th>Nombre</th>
+            <th>Puesto</th>
+            <th>Saldo Vacaciones</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyEmpleados">
+        </tbody>
+          <tr>
+            <td>301230456</td>
+            <td>Camila Herrera</td>
+            <td>Contadora</td>
+            <td>10</td>
+            <td class="acciones">
+              <button class="btnConsultar">🔍 Consultar</button>
+              <button class="btnActualizar">✏️ Actualizar</button>
+              <button class="btnEliminar">🗑️ Eliminar</button>
+              <button class="btnVerMovimientos">📋 Movimientos</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div id="mensajeLista" class="mensaje"></div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
