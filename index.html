@@ -29,25 +29,37 @@
           </tr>
         </thead>
         <tbody id="tbodyEmpleados">
-        </tbody>
-          <tr>
-            <td>301230456</td>
-            <td>Camila Herrera</td>
-            <td>Contadora</td>
-            <td>10</td>
-            <td class="acciones">
-              <button class="btnConsultar">🔍 Consultar</button>
-              <button class="btnActualizar">✏️ Actualizar</button>
-              <button class="btnEliminar">🗑️ Eliminar</button>
-              <button class="btnVerMovimientos">📋 Movimientos</button>
-            </td>
-          </tr>
+          <!-- Aquí se cargará la lista de empleados -->
         </tbody>
       </table>
 
       <div id="mensajeLista" class="mensaje"></div>
     </section>
   </main>
+
+  <!-- Modal Insertar Empleado -->
+  <div id="modalInsertar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; justify-content:center; align-items:center;">
+    <div style="background:white; padding:20px; border-radius:8px; width:400px;">
+      <h2>Insertar Empleado</h2>
+      <form id="formInsertar">
+        <label>Documento Identidad:</label><br>
+        <input type="text" id="docId" required><br><br>
+
+        <label>Nombre:</label><br>
+        <input type="text" id="nombre" required><br><br>
+
+        <label>Puesto:</label><br>
+        <select id="puestoSelect" required></select><br><br>
+
+        <label>Fecha Contratación:</label><br>
+        <input type="date" id="fechaContratacion" required><br><br>
+
+        <button type="submit">Guardar</button>
+        <button type="button" onclick="cerrarModal()">Cancelar</button>
+      </form>
+      <div id="mensajeInsertar" class="mensaje"></div>
+    </div>
+  </div>
 
   <script src="./app.js"></script>
 </body>

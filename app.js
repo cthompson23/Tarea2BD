@@ -2,28 +2,75 @@ const btnInsertar = document.getElementById("btnInsertar");
 const tbodyEmpleados = document.getElementById("tbodyEmpleados");
 const mensajeLista = document.getElementById("mensajeLista");
 
-function inicializarBotones() {
-  document.querySelectorAll(".btnConsultar").forEach(btn => {
-    btn.addEventListener("click", () => alert("Consultar empleado (sin funcionalidad aún)"));
-  });
+const modalInsertar = document.getElementById("modalInsertar");
+const formInsertar = document.getElementById("formInsertar");
+const puestoSelect = document.getElementById("puestoSelect");
+const mensajeInsertar = document.getElementById("mensajeInsertar");
 
-  document.querySelectorAll(".btnActualizar").forEach(btn => {
-    btn.addEventListener("click", () => alert("Actualizar empleado (sin funcionalidad aún)"));
-  });
-
-  document.querySelectorAll(".btnEliminar").forEach(btn => {
-    btn.addEventListener("click", () => alert("Eliminar empleado (sin funcionalidad aún)"));
-  });
-
-  document.querySelectorAll(".btnVerMovimientos").forEach(btn => {
-    btn.addEventListener("click", () => alert("Ver movimientos (sin funcionalidad aún)"));
-  });
-}
-
-btnInsertar.addEventListener("click", () => {
-  alert("Insertar nuevo empleado (sin funcionalidad aún)");
+// Mostrar modal de inserción
+btnInsertar.addEventListener("click", async () => {
+  await cargarPuestos();
+  modalInsertar.style.display = "flex";
 });
 
+// Cerrar modal
+function cerrarModal() {
+  modalInsertar.style.display = "none";
+  mensajeInsertar.textContent = "";
+  formInsertar.reset();
+}
+
+// Cargar puestos en el dropdown
+async function cargarPuestos() {
+  try {
+    const res = await fetch('/api/puestos');
+    const puestos = await res.json();
+    puestoSelect.innerHTML = '';
+    puestos.forEach(p => {
+      const option = document.createElement('option');
+      option.value = p.Id;
+      option.textContent = p.Nombre;
+      puestoSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Error al cargar puestos:", err);
+  }
+}
+
+// Enviar formulario de inserción
+formInsertar.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const data = {
+    ValorDocumentoIdentidad: document.getElementById("docId").value.trim(),
+    Nombre: document.getElementById("nombre").value.trim(),
+    IdPuesto: parseInt(puestoSelect.value),
+    FechaContratacion: document.getElementById("fechaContratacion").value,
+    IdPostByUser: 1, // Puedes cambiar esto según el usuario logueado
+    PostInIP: "127.0.0.1" // Puedes obtener la IP real si lo deseas
+  };
+
+  try {
+    const res = await fetch('/api/empleados', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      mensajeInsertar.textContent = "Empleado insertado correctamente.";
+      await cargarEmpleados();
+      setTimeout(cerrarModal, 1500);
+    } else {
+      mensajeInsertar.textContent = `Error: ${result.message}`;
+    }
+  } catch (err) {
+    console.error("Error al insertar empleado:", err);
+    mensajeInsertar.textContent = "Error inesperado.";
+  }
+});
+
+// Cargar empleados en la tabla
 async function cargarEmpleados() {
   try {
     const response = await fetch('/api/empleados');
@@ -60,5 +107,24 @@ async function cargarEmpleados() {
   }
 }
 
-// Inicializar
+// Inicializar botones de acción
+function inicializarBotones() {
+  document.querySelectorAll(".btnConsultar").forEach(btn => {
+    btn.addEventListener("click", () => alert("Consultar empleado (sin funcionalidad aún)"));
+  });
+
+  document.querySelectorAll(".btnActualizar").forEach(btn => {
+    btn.addEventListener("click", () => alert("Actualizar empleado (sin funcionalidad aún)"));
+  });
+
+  document.querySelectorAll(".btnEliminar").forEach(btn => {
+    btn.addEventListener("click", () => alert("Eliminar empleado (sin funcionalidad aún)"));
+  });
+
+  document.querySelectorAll(".btnVerMovimientos").forEach(btn => {
+    btn.addEventListener("click", () => alert("Ver movimientos (sin funcionalidad aún)"));
+  });
+}
+
+// Inicializar tabla al cargar
 cargarEmpleados();
