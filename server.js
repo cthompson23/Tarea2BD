@@ -26,12 +26,12 @@ let pool;
 async function getPool() {
   if (pool) return pool;
   pool = await sql.connect(dbConfig);
-  console.log('Conectado a la base de datos correctamente.');
+  console.log('✅ Conectado a la base de datos correctamente.');
   return pool;
 }
 
 // ------------------------------------------------------------
-// ENDPOINT PRINCIPAL: LISTAR EMPLEADOS ACTIVOS
+// ENDPOINT: LISTAR EMPLEADOS ACTIVOS
 // ------------------------------------------------------------
 app.get('/api/empleados', async (req, res) => {
   try {
@@ -41,7 +41,7 @@ app.get('/api/empleados', async (req, res) => {
     const result = await request.execute('SP_ListarInicioEmpleado');
     res.json(result.recordset);
   } catch (err) {
-    console.error('Error al obtener empleados:', err);
+    console.error('❌ Error al obtener empleados:', err);
     res.status(500).json({ error: 'Error al obtener empleados.' });
   }
 });
@@ -55,7 +55,7 @@ app.get('/api/puestos', async (req, res) => {
     const result = await pool.request().query('SELECT Id, Nombre FROM Puesto ORDER BY Nombre ASC');
     res.json(result.recordset);
   } catch (err) {
-    console.error('Error al obtener puestos:', err);
+    console.error('❌ Error al obtener puestos:', err);
     res.status(500).json({ error: 'Error al obtener puestos.' });
   }
 });
@@ -102,13 +102,58 @@ app.post('/api/empleados', async (req, res) => {
       res.json({ success: false, message });
     }
   } catch (err) {
-    console.error('Error al insertar empleado:', err);
+    console.error('❌ Error al insertar empleado:', err);
     res.status(500).json({ success: false, message: 'Error inesperado.' });
   }
 });
 
 // ------------------------------------------------------------
-// RUTA POR DEFECTO PARA CARGAR LA PANTALLA PRINCIPAL
+// ENDPOINT: ACTUALIZAR EMPLEADO
+// ------------------------------------------------------------
+app.put('/api/empleados/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const {
+      ValorDocumentoIdentidad,
+      Nombre,
+      IdPuesto,
+      IdPostByUser,
+      PostInIP
+    } = req.body;
+
+    const pool = await getPool();
+    const request = pool.request();
+
+    request.input('Id', sql.Int, id);
+    request.input('IdPuesto', sql.Int, IdPuesto);
+    request.input('ValorDocumentoIdentidad', sql.NVarChar(50), ValorDocumentoIdentidad);
+    request.input('Nombre', sql.NVarChar(100), Nombre);
+    request.input('inIdPostByUser', sql.Int, IdPostByUser);
+    request.input('inPostInIP', sql.VarChar(64), PostInIP);
+    request.input('inPostTime', sql.DateTime, new Date());
+    request.output('outResultCode', sql.Int);
+
+    const result = await request.execute('SP_ActualizarEmpleado');
+    const code = result.output.outResultCode;
+
+    if (code === 0) {
+      res.json({ success: true });
+    } else {
+      const errorLookup = await pool.request()
+        .input('Codigo', sql.Int, code)
+        .query('SELECT Descripcion FROM Error WHERE Codigo = @Codigo');
+
+      const message = errorLookup.recordset[0]?.Descripcion || 'Error desconocido';
+      res.json({ success: false, message });
+    }
+  } catch (err) {
+    console.error('❌ Error al actualizar empleado:', err);
+    res.status(500).json({ success: false, message: 'Error inesperado.' });
+  }
+});
+
+// ------------------------------------------------------------
+// RUTA PRINCIPAL
 // ------------------------------------------------------------
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

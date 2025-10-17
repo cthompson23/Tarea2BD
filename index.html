@@ -61,6 +61,29 @@
     </div>
   </div>
 
+  <!-- Modal Actualizar Empleado -->
+  <div id="modalActualizar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; justify-content:center; align-items:center;">
+    <div style="background:white; padding:20px; border-radius:8px; width:400px;">
+      <h2>Actualizar Empleado</h2>
+      <form id="formActualizar">
+        <input type="hidden" id="actualizarId">
+
+        <label>Documento Identidad:</label><br>
+        <input type="text" id="actualizarDocId" required><br><br>
+
+        <label>Nombre:</label><br>
+        <input type="text" id="actualizarNombre" required><br><br>
+
+        <label>Puesto:</label><br>
+        <select id="actualizarPuestoSelect" required></select><br><br>
+
+        <button type="submit">Guardar Cambios</button>
+        <button type="button" onclick="cerrarModalActualizar()">Cancelar</button>
+      </form>
+      <div id="mensajeActualizar" class="mensaje"></div>
+    </div>
+  </div>
+
   <script src="./app.js"></script>
 </body>
 </html>
