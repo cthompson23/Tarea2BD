@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Empleados</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Gestión de Empleados</h1>
+  </header>
+
+  <main>
+    <section id="listaEmpleados">
+      <div class="toolbar">
+        <button id="btnInsertar">➕ Insertar Empleado</button>
+      </div>
+
+      <table id="tablaEmpleados">
+        <thead>
+          <tr>
+            <th>Documento ID</th>
+            <th>Nombre</th>
+            <th>Puesto</th>
+            <th>Saldo Vacaciones</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyEmpleados">
+          <!-- Aquí se cargará la lista de empleados -->
+        </tbody>
+      </table>
+
+      <div id="mensajeLista" class="mensaje"></div>
+    </section>
+  </main>
+
+  <!-- Modal Insertar Empleado -->
+  <div id="modalInsertar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; justify-content:center; align-items:center;">
+    <div style="background:white; padding:20px; border-radius:8px; width:400px;">
+      <h2>Insertar Empleado</h2>
+      <form id="formInsertar">
+        <label>Documento Identidad:</label><br>
+        <input type="text" id="docId" required><br><br>
+
+        <label>Nombre:</label><br>
+        <input type="text" id="nombre" required><br><br>
+
+        <label>Puesto:</label><br>
+        <select id="puestoSelect" required></select><br><br>
+
+        <label>Fecha Contratación:</label><br>
+        <input type="date" id="fechaContratacion" required><br><br>
+
+        <button type="submit">Guardar</button>
+        <button type="button" onclick="cerrarModal()">Cancelar</button>
+      </form>
+      <div id="mensajeInsertar" class="mensaje"></div>
+    </div>
+  </div>
+
+  <!-- Modal Actualizar Empleado -->
+  <div id="modalActualizar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; justify-content:center; align-items:center;">
+    <div style="background:white; padding:20px; border-radius:8px; width:400px;">
+      <h2>Actualizar Empleado</h2>
+      <form id="formActualizar">
+        <input type="hidden" id="actualizarId">
+
+        <label>Documento Identidad:</label><br>
+        <input type="text" id="actualizarDocId" required><br><br>
+
+        <label>Nombre:</label><br>
+        <input type="text" id="actualizarNombre" required><br><br>
+
+        <label>Puesto:</label><br>
+        <select id="actualizarPuestoSelect" required></select><br><br>
+
+        <button type="submit">Guardar Cambios</button>
+        <button type="button" onclick="cerrarModalActualizar()">Cancelar</button>
+      </form>
+      <div id="mensajeActualizar" class="mensaje"></div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
