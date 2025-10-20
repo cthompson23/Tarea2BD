@@ -18,7 +18,15 @@ const actualizarNombre = document.getElementById("actualizarNombre");
 const actualizarPuestoSelect = document.getElementById("actualizarPuestoSelect");
 const mensajeActualizar = document.getElementById("mensajeActualizar");
 
-// Abrir modal de inserción
+// Elementos del modal de eliminación
+const modalEliminar = document.getElementById("modalEliminar");
+const textoEliminar = document.getElementById("textoEliminar");
+const btnConfirmarEliminar = document.getElementById("btnConfirmarEliminar");
+const mensajeEliminar = document.getElementById("mensajeEliminar");
+
+let empleadoAEliminar = null;
+
+// Mostrar modal de inserción
 btnInsertar.addEventListener("click", async () => {
   await cargarPuestos(puestoSelect);
   modalInsertar.style.display = "flex";
@@ -36,6 +44,13 @@ function cerrarModalActualizar() {
   modalActualizar.style.display = "none";
   mensajeActualizar.textContent = "";
   formActualizar.reset();
+}
+
+// Cerrar modal de eliminación
+function cerrarModalEliminar() {
+  modalEliminar.style.display = "none";
+  mensajeEliminar.textContent = "";
+  empleadoAEliminar = null;
 }
 
 // Cargar puestos en un select
@@ -121,6 +136,36 @@ formActualizar.addEventListener("submit", async (e) => {
   }
 });
 
+// Confirmar eliminación
+btnConfirmarEliminar.addEventListener("click", async () => {
+  if (!empleadoAEliminar) return;
+
+  try {
+    const res = await fetch(`/api/empleados/${empleadoAEliminar.Id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        Confirmado: true,
+        IdPostByUser: 1,
+        PostInIP: "127.0.0.1"
+      })
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      mensajeEliminar.textContent = "✅ Empleado eliminado correctamente.";
+      await cargarEmpleados();
+      setTimeout(cerrarModalEliminar, 1500);
+    } else {
+      mensajeEliminar.textContent = `❌ Error: ${result.message}`;
+    }
+  } catch (err) {
+    console.error("Error al eliminar empleado:", err);
+    mensajeEliminar.textContent = "❌ Error inesperado.";
+  }
+});
+
 // Cargar empleados en la tabla
 async function cargarEmpleados() {
   try {
@@ -158,7 +203,7 @@ async function cargarEmpleados() {
   }
 }
 
-// Inicializar botones de acción
+// Inicializar botones
 function inicializarBotones() {
   document.querySelectorAll(".btnConsultar").forEach(btn => {
     btn.addEventListener("click", () => alert("Consultar empleado (sin funcionalidad aún)"));
@@ -186,7 +231,19 @@ function inicializarBotones() {
   });
 
   document.querySelectorAll(".btnEliminar").forEach(btn => {
-    btn.addEventListener("click", () => alert("Eliminar empleado (sin funcionalidad aún)"));
+    btn.addEventListener("click", async (e) => {
+      const fila = e.target.closest("tr");
+      const docId = fila.children[0].textContent;
+      const nombre = fila.children[1].textContent;
+
+      const empleados = await fetch('/api/empleados').then(r => r.json());
+      const emp = empleados.find(e => e.DocumentoIdentidad === docId && e.Nombre === nombre);
+
+      if (!emp) return alert("Empleado no encontrado.");
+      empleadoAEliminar = emp;
+      textoEliminar.textContent = `¿Estás seguro de que deseas eliminar al empleado "${emp.Nombre}" con documento ${emp.DocumentoIdentidad}?`;
+      modalEliminar.style.display = "flex";
+    });
   });
 
   document.querySelectorAll(".btnVerMovimientos").forEach(btn => {

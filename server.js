@@ -153,6 +153,43 @@ app.put('/api/empleados/:id', async (req, res) => {
 });
 
 // ------------------------------------------------------------
+// ENDPOINT: ELIMINAR EMPLEADO (BORRADO LÓGICO)
+// ------------------------------------------------------------
+app.delete('/api/empleados/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { Confirmado, IdPostByUser, PostInIP } = req.body;
+
+    const pool = await getPool();
+    const request = pool.request();
+
+    request.input('Id', sql.Int, id);
+    request.input('inIdPostByUser', sql.Int, IdPostByUser);
+    request.input('inPostInIP', sql.VarChar(64), PostInIP);
+    request.input('inPostTime', sql.DateTime, new Date());
+    request.input('Confirmado', sql.Bit, Confirmado ? 1 : 0);
+    request.output('outResultCode', sql.Int);
+
+    const result = await request.execute('SP_BorrarEmpleado');
+    const code = result.output.outResultCode;
+
+    if (code === 0) {
+      res.json({ success: true });
+    } else {
+      const errorLookup = await pool.request()
+        .input('Codigo', sql.Int, code)
+        .query('SELECT Descripcion FROM Error WHERE Codigo = @Codigo');
+
+      const message = errorLookup.recordset[0]?.Descripcion || 'Error desconocido';
+      res.json({ success: false, message });
+    }
+  } catch (err) {
+    console.error('❌ Error al eliminar empleado:', err);
+    res.status(500).json({ success: false, message: 'Error inesperado.' });
+  }
+});
+
+// ------------------------------------------------------------
 // RUTA PRINCIPAL
 // ------------------------------------------------------------
 app.get('/', (req, res) => {
