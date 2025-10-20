@@ -1,15 +1,15 @@
-// Elementos de la tabla principal
+// Elementos principales
 const btnInsertar = document.getElementById("btnInsertar");
 const tbodyEmpleados = document.getElementById("tbodyEmpleados");
 const mensajeLista = document.getElementById("mensajeLista");
 
-// Elementos del modal de inserción
+// Modal insertar
 const modalInsertar = document.getElementById("modalInsertar");
 const formInsertar = document.getElementById("formInsertar");
 const puestoSelect = document.getElementById("puestoSelect");
 const mensajeInsertar = document.getElementById("mensajeInsertar");
 
-// Elementos del modal de actualización
+// Modal actualizar
 const modalActualizar = document.getElementById("modalActualizar");
 const formActualizar = document.getElementById("formActualizar");
 const actualizarId = document.getElementById("actualizarId");
@@ -18,7 +18,7 @@ const actualizarNombre = document.getElementById("actualizarNombre");
 const actualizarPuestoSelect = document.getElementById("actualizarPuestoSelect");
 const mensajeActualizar = document.getElementById("mensajeActualizar");
 
-// Elementos del modal de eliminación
+// Modal eliminar
 const modalEliminar = document.getElementById("modalEliminar");
 const textoEliminar = document.getElementById("textoEliminar");
 const btnConfirmarEliminar = document.getElementById("btnConfirmarEliminar");
@@ -26,34 +26,40 @@ const mensajeEliminar = document.getElementById("mensajeEliminar");
 
 let empleadoAEliminar = null;
 
-// Mostrar modal de inserción
+
+// Verificar sesión activa
+const usuarioLogueado = localStorage.getItem("usuarioLogueado");
+if (!usuarioLogueado) {
+  window.location.href = "login.html";
+}
+
+// Mostrar modal insertar
 btnInsertar.addEventListener("click", async () => {
   await cargarPuestos(puestoSelect);
   modalInsertar.style.display = "flex";
 });
 
-// Cerrar modal de inserción
+// Cerrar modales
 function cerrarModal() {
   modalInsertar.style.display = "none";
   mensajeInsertar.textContent = "";
   formInsertar.reset();
 }
 
-// Cerrar modal de actualización
 function cerrarModalActualizar() {
   modalActualizar.style.display = "none";
   mensajeActualizar.textContent = "";
   formActualizar.reset();
 }
 
-// Cerrar modal de eliminación
 function cerrarModalEliminar() {
   modalEliminar.style.display = "none";
   mensajeEliminar.textContent = "";
   empleadoAEliminar = null;
 }
 
-// Cargar puestos en un select
+
+// Cargar puestos en select
 async function cargarPuestos(selectElement) {
   try {
     const res = await fetch('/api/puestos');
@@ -69,6 +75,12 @@ async function cargarPuestos(selectElement) {
     console.error("Error al cargar puestos:", err);
   }
 }
+
+function cerrarSesion() {
+  localStorage.removeItem("usuarioLogueado");
+  window.location.href = "login.html";
+}
+
 
 // Insertar empleado
 formInsertar.addEventListener("submit", async (e) => {
@@ -91,15 +103,15 @@ formInsertar.addEventListener("submit", async (e) => {
     const result = await res.json();
 
     if (result.success) {
-      mensajeInsertar.textContent = "✅ Empleado insertado correctamente.";
+      mensajeInsertar.textContent = "Empleado insertado correctamente.";
       await cargarEmpleados();
       setTimeout(cerrarModal, 1500);
     } else {
-      mensajeInsertar.textContent = `❌ Error: ${result.message}`;
+      mensajeInsertar.textContent = `Error: ${result.message}`;
     }
   } catch (err) {
     console.error("Error al insertar empleado:", err);
-    mensajeInsertar.textContent = "❌ Error inesperado.";
+    mensajeInsertar.textContent = "Error inesperado.";
   }
 });
 
@@ -124,15 +136,15 @@ formActualizar.addEventListener("submit", async (e) => {
     const result = await res.json();
 
     if (result.success) {
-      mensajeActualizar.textContent = "✅ Empleado actualizado correctamente.";
+      mensajeActualizar.textContent = "Empleado actualizado correctamente.";
       await cargarEmpleados();
       setTimeout(cerrarModalActualizar, 1500);
     } else {
-      mensajeActualizar.textContent = `❌ Error: ${result.message}`;
+      mensajeActualizar.textContent = `Error: ${result.message}`;
     }
   } catch (err) {
     console.error("Error al actualizar empleado:", err);
-    mensajeActualizar.textContent = "❌ Error inesperado.";
+    mensajeActualizar.textContent = "Error inesperado.";
   }
 });
 
@@ -154,19 +166,19 @@ btnConfirmarEliminar.addEventListener("click", async () => {
     const result = await res.json();
 
     if (result.success) {
-      mensajeEliminar.textContent = "✅ Empleado eliminado correctamente.";
+      mensajeEliminar.textContent = "Empleado eliminado correctamente.";
       await cargarEmpleados();
       setTimeout(cerrarModalEliminar, 1500);
     } else {
-      mensajeEliminar.textContent = `❌ Error: ${result.message}`;
+      mensajeEliminar.textContent = `Error: ${result.message}`;
     }
   } catch (err) {
     console.error("Error al eliminar empleado:", err);
-    mensajeEliminar.textContent = "❌ Error inesperado.";
+    mensajeEliminar.textContent = "Error inesperado.";
   }
 });
 
-// Cargar empleados en la tabla
+// Cargar empleados
 async function cargarEmpleados() {
   try {
     const response = await fetch('/api/empleados');
@@ -179,6 +191,8 @@ async function cargarEmpleados() {
       return;
     }
 
+    mensajeLista.textContent = '';
+
     empleados.forEach(emp => {
       const fila = document.createElement('tr');
       fila.innerHTML = `
@@ -187,7 +201,6 @@ async function cargarEmpleados() {
         <td>${emp.NombrePuesto}</td>
         <td>${emp.SaldoVacaciones}</td>
         <td class="acciones">
-          <button class="btnConsultar">🔍 Consultar</button>
           <button class="btnActualizar">✏️ Actualizar</button>
           <button class="btnEliminar">🗑️ Eliminar</button>
           <button class="btnVerMovimientos">📋 Movimientos</button>
@@ -203,12 +216,30 @@ async function cargarEmpleados() {
   }
 }
 
+function mostrarEmpleados(lista) {
+  const tbody = document.getElementById("tbodyEmpleados");
+  tbody.innerHTML = "";
+
+  lista.forEach(emp => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${emp.Identificacion}</td>
+        <td>${emp.Nombre}</td>
+        <td>${emp.Puesto}</td>
+        <td>${emp.SaldoVacaciones}</td>
+        <td class="acciones">
+          <button class="btnActualizar">✏️ Actualizar</button>
+          <button class="btnEliminar">🗑️ Eliminar</button>
+          <button class="btnVerMovimientos">📋 Movimientos</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
 // Inicializar botones
 function inicializarBotones() {
-  document.querySelectorAll(".btnConsultar").forEach(btn => {
-    btn.addEventListener("click", () => alert("Consultar empleado (sin funcionalidad aún)"));
-  });
-
   document.querySelectorAll(".btnActualizar").forEach(btn => {
     btn.addEventListener("click", async (e) => {
       const fila = e.target.closest("tr");
@@ -246,8 +277,46 @@ function inicializarBotones() {
     });
   });
 
-  document.querySelectorAll(".btnVerMovimientos").forEach(btn => {
-    btn.addEventListener("click", () => alert("Ver movimientos (sin funcionalidad aún)"));
+  document.getElementById("btnFiltrar").addEventListener("click", async () => {
+  const filtro = document.getElementById("inputFiltro").value.trim();
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogueado"));
+  const username = usuario?.username || "";
+  const ip = "127.0.0.1"; // o extraído dinámicamente si lo deseas
+
+  try {
+    const response = await fetch("/filtrar-empleados", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filtro, username, ip })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      mostrarEmpleados(data.empleados);
+    } else {
+      document.getElementById("mensajeLista").textContent = data.message;
+    }
+  } catch (error) {
+    console.error("Error al filtrar:", error);
+    document.getElementById("mensajeLista").textContent = "Error al conectar con el servidor.";
+  }
+});
+
+    document.querySelectorAll(".btnVerMovimientos").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const fila = e.target.closest("tr");
+      const docId = fila.children[0].textContent;
+      const nombre = fila.children[1].textContent;
+
+      const empleados = await fetch('/api/empleados').then(r => r.json());
+      const emp = empleados.find(e => e.DocumentoIdentidad === docId && e.Nombre === nombre);
+
+      if (!emp) return alert("Empleado no encontrado.");
+
+      localStorage.setItem("empleadoSeleccionado", JSON.stringify(emp));
+      window.location.href = "movimientos.html";
+    });
   });
 }
 

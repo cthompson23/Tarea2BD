@@ -10,12 +10,15 @@
 
   <header>
     <h1>Gestión de Empleados</h1>
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
   </header>
 
   <main>
     <section id="listaEmpleados">
       <div class="toolbar">
         <button id="btnInsertar">➕ Insertar Empleado</button>
+        <input type="text" id="inputFiltro" placeholder="Filtrar por nombre o documento" />
+        <button id="btnFiltrar">🔎 Filtrar</button>
       </div>
 
       <table id="tablaEmpleados">
